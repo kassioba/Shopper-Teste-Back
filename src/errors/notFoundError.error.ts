@@ -1,4 +1,4 @@
-import { applicationError } from "utils/applicationError";
+import { applicationError } from "protocols/applicationError";
 
 export default function notFoundError(productCode?: string): applicationError{
     return {

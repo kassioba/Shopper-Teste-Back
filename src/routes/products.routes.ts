@@ -1,4 +1,4 @@
-import { updatePrices } from "../controllers/products.controller";
+import { validateFile } from "../controllers/products.controller";
 import { Router } from "express";
 import validateSchema from "../middlewares/validateSchema.middleware";
 import multer from 'multer'
@@ -8,6 +8,6 @@ import { updateDataSchema } from "../schemas/updateData.schema";
 const productsRouter = Router()
 const multerConfig = multer()
 
-productsRouter.post('/products', multerConfig.single('file'), validateSchema(csvFileSchema, updateDataSchema), updatePrices)
+productsRouter.post('/validate', multerConfig.single('file'), validateSchema(csvFileSchema, updateDataSchema), validateFile)
 
 export default productsRouter

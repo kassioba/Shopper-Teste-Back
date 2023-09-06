@@ -1,4 +1,4 @@
-import { applicationError } from "utils/applicationError";
+import { applicationError } from "protocols/applicationError";
 
 export function forbiddenError(productCodes?: string, type?: 'HIGHER' | 'TEN'): applicationError{
     return {

@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { ArraySchema, ObjectSchema } from 'joi'
 import { Readable } from "stream";
 import readline from 'readline'
-import { CsvData } from '../utils/CsvData';
-import { FileDataRequest } from "utils/FileDataRequest";
+import { CsvData } from '../protocols/CsvData';
+import { FileDataRequest } from "protocols/FileDataRequest";
 
 export default function validateSchema(schema: ObjectSchema, secondSchema?: ArraySchema){
     return async (req: FileDataRequest, res: Response, next: NextFunction) => {
