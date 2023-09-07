@@ -1,4 +1,4 @@
-export type product = {
+export type Product = {
     code: number,
     name: string,
     cost_price: string,

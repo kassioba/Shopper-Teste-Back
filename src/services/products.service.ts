@@ -1,10 +1,11 @@
-import { product } from "protocols/product";
-import { selectPacksWithPrice, selectPacksWithProducts, selectProductsById } from "../repositories/products.repository";
+import { Product } from "protocols/Product";
+import { selectPacksWithPrice, selectPacksWithProducts, selectProductsById, updateProductsPricesByCode } from "../repositories/products.repository";
 import { CsvData } from "protocols/CsvData";
 import notFoundError from "../errors/notFoundError.error";
 import { forbiddenError } from "../errors/forbiddenError.error";
-import { pack } from "protocols/pack";
+import { Pack } from "protocols/Pack";
 import { packsError } from "../errors/packs.error";
+import { applicationError } from "protocols/ApplicationError";
 
 export async function validateFileData(updateData: CsvData[]){
     const codes = []
@@ -13,39 +14,54 @@ export async function validateFileData(updateData: CsvData[]){
         codes.push(updt.product_code)
     })
 
-    const products = await selectProductsById(codes) as product[]
-
-    checkCodesExist(products, codes)
+    const products = await selectProductsById(codes) as Product[]
     
     const updateHash = {}
 
     updateData.forEach(updt => {
         updateHash[updt.product_code] = updt.new_price
     })
+    
+    const packs = await selectPacksWithProducts() as Pack[]
 
-    checkNewPriceIsHigher(products, updateHash)
+    const errors = await checkHandler(products, updateHash, packs, codes)
 
-    checkNewPriceTenPercent(products, updateHash)
-
-    const packs = await selectPacksWithProducts() as pack[]
-
-    await checkPacks(updateHash, packs)
+    const errorHash = handleErrors(errors)
 
     const response = []
+
+    products.sort((a, b) => (a.code > b.code) ? 1 : -1)
 
     products.forEach(prod => {
         response.push({
             code: prod.code,
             name: prod.name,
-            current_price: Number(prod.sales_price).toFixed(2),
-            new_price: Number(updateHash[prod.code])
+            current_price: !isNaN(Number(prod.sales_price)) ? Number(prod.sales_price).toFixed(2) : undefined,
+            new_price: Number(updateHash[prod.code]).toFixed(2),
+            error_message: errorHash[prod.code]
         })
     });
 
-    return response
+    
+    return {
+        response,
+        error: !!errors.length
+    }
 }
 
-function checkCodesExist(products: product[], codes: Array<number>) {
+export async function updateProductsByCsvData(updateData: CsvData[]) {
+   const query: string[] = []
+   const codes: string[] = []
+
+    updateData.forEach(updt => {
+        query.push(`WHEN ${updt.product_code} THEN ${updt.new_price}`)
+        codes.push(updt.product_code)
+    })
+
+    await updateProductsPricesByCode(query.join(' '), codes)
+}
+
+function checkCodesExist(products: Product[], codes: number[]) {
     const codeHash = {}
 
     products.forEach(prod => {
@@ -55,24 +71,32 @@ function checkCodesExist(products: product[], codes: Array<number>) {
     const notFoundCodes = []
 
     codes.forEach(code => {
-        if(!codeHash[code]) notFoundCodes.push(code)
+        if(!codeHash[Number(code)]) {
+            notFoundCodes.push(Number(code))
+            products.push({
+                code: Number(code),
+                cost_price: undefined,
+                sales_price: undefined,
+                name: undefined
+            })
+        }
     })
 
-    if(!!notFoundCodes.length) throw notFoundError(notFoundCodes.join(', '))
+    if(!!notFoundCodes.length) return notFoundError(notFoundCodes)
 }
 
-function checkNewPriceIsHigher(products: product[], updateHash: object) {
-    const forbiddenCodes = []
+function checkNewPriceIsHigher(products: Product[], updateHash: object) {
+    const forbiddenCodes: number[] = []
 
     products.forEach(prod => {
         if(Number(updateHash[prod.code]) < Number(prod.cost_price)) forbiddenCodes.push(prod.code)
     })
 
-    if(!!forbiddenCodes.length) throw forbiddenError(forbiddenCodes.join(', '), 'HIGHER')
+    if(!!forbiddenCodes.length) return forbiddenError(forbiddenCodes, 'HIGHER')
 }
 
-function checkNewPriceTenPercent(products: product[], updateHash: object){
-    const forbiddenCodes = []
+function checkNewPriceTenPercent(products: Product[], updateHash: object){
+    const forbiddenCodes: number[] = []
 
     products.forEach(prod => {
         if(Number(updateHash[prod.code]) > Number(prod.sales_price) + (Number(prod.sales_price) * 0.1) ||
@@ -80,30 +104,57 @@ function checkNewPriceTenPercent(products: product[], updateHash: object){
         ) forbiddenCodes.push(prod.code)
     })
 
-    if(!!forbiddenCodes.length) throw forbiddenError(forbiddenCodes.join(', '), 'TEN')
+    if(!!forbiddenCodes.length) return forbiddenError(forbiddenCodes, 'TEN')
 }
 
-async function checkPacks(updateHash: object, packs: pack[]){
+async function checkPacks(updateHash: object, packs: Pack[]){
     const packHash = {}
-    const forbiddenProductsId = []
+    const forbiddenIds = []
 
     packs.forEach(pack => {
-        if(updateHash[pack.pack_id] && !updateHash[pack.product_id]) forbiddenProductsId.push(pack.pack_id)
-        else if(!updateHash[pack.pack_id] && updateHash[pack.product_id]) forbiddenProductsId.push(pack.product_id)
+        if(updateHash[pack.pack_id] && !updateHash[pack.product_id]) forbiddenIds.push(pack.pack_id)
+        else if(!updateHash[pack.pack_id] && updateHash[pack.product_id]) forbiddenIds.push(pack.product_id)
 
-        if((updateHash[pack.pack_id] && updateHash[pack.product_id]) && !packHash[pack.pack_id]) packHash[pack.pack_id] = Number((Number(updateHash[pack.product_id]) * pack.qty).toFixed(2))
-        else if((updateHash[pack.pack_id] && updateHash[pack.product_id]) && packHash[pack.pack_id]) packHash[pack.pack_id] += Number((Number(updateHash[pack.product_id]) * pack.qty).toFixed(2))
+        if((updateHash[pack.pack_id] && updateHash[pack.product_id]) && !packHash[pack.pack_id]) 
+            packHash[pack.pack_id] = Number((Number(updateHash[pack.product_id]) * pack.qty).toFixed(2))
+        else if((updateHash[pack.pack_id] && updateHash[pack.product_id]) && packHash[pack.pack_id]) 
+            packHash[pack.pack_id] += Number((Number(updateHash[pack.product_id]) * pack.qty).toFixed(2))
     })
 
-    if(forbiddenProductsId.length) throw packsError(forbiddenProductsId)
-
-    const forbiddenPackId = []
+    if(forbiddenIds.length) return packsError(forbiddenIds)
 
     packs.forEach(pack => {
         if((updateHash[pack.pack_id] && packHash[pack.pack_id]) &&
-            Number(updateHash[pack.pack_id]) !== packHash[pack.pack_id] &&
-            !forbiddenPackId.includes(pack.pack_id)) forbiddenPackId.push(pack.pack_id)
+            Number(updateHash[pack.pack_id]) !== packHash[pack.pack_id]) {
+                if(!forbiddenIds.includes(pack.pack_id)) forbiddenIds.push(pack.pack_id)
+                forbiddenIds.push(pack.product_id)
+            }
     })
 
-    if(forbiddenPackId.length) throw packsError(forbiddenPackId)
+    if(forbiddenIds.length) return packsError(forbiddenIds)
+}
+
+async function checkHandler(products: Product[], updateHash: object, packs: Pack[], codes: number[]){
+    const checkExist = checkCodesExist(products, codes)
+
+    const checkHigher = checkNewPriceIsHigher(products, updateHash)
+
+    const checkTen = checkNewPriceTenPercent(products, updateHash)
+
+    const checkPack = await checkPacks(updateHash, packs)
+
+    return !checkExist && !checkHigher && !checkTen && !checkPack ? [] : [checkHigher, checkTen, checkPack, checkExist]
+}
+
+function handleErrors(errors: Array<applicationError & { id: number[] }>){
+    const errorHash = {}
+
+    errors.forEach(err => {
+        err?.id.forEach(id => {
+            if(errorHash[id]) errorHash[id].push(err.message)
+            if(!errorHash[id]) errorHash[id] = [err.message]
+        })
+    })
+
+    return errorHash
 }

@@ -1,10 +1,11 @@
-import { applicationError } from "protocols/applicationError";
+import { applicationError } from "../protocols/ApplicationError";
 
-export function forbiddenError(productCodes?: string, type?: 'HIGHER' | 'TEN'): applicationError{
+export function forbiddenError(productCodes?: number[], type?: 'HIGHER' | 'TEN'): applicationError & { id: number[] } {
     return {
         name: 'ForbiddenError',
-        message: productCodes && type === 'HIGHER' ? `new_price of products (${productCodes}) cannot be lower than cost_price` : 
-                 productCodes && type === 'TEN' ? `new_price of products (${productCodes}) cannot be 10% higher or lower than sales_price`
-                : 'Forbidden'
+        message: type === 'HIGHER' ? `Novo preço não pode ser menor que preço de custo` : 
+                 type === 'TEN' ? `Novo preço não pode ser 10% maior ou menor que preço de venda`
+                : 'Forbidden',
+        id: productCodes
     }
 }

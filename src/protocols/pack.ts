@@ -1,6 +1,6 @@
-import { product } from "./product"
+import { Product } from "./Product"
 
-export type pack = product & {
+export type Pack = Product & {
     id: number,
     pack_id: number,
     product_id: number,

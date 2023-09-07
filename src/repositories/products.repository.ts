@@ -1,6 +1,6 @@
 import db from "../database/database.connection";
 
-export async function selectProductsById(codes: Array<string>){
+export async function selectProductsById(codes: string[]){
     return (await db.query(`
         SELECT * FROM products
         WHERE code IN (?)
@@ -21,4 +21,15 @@ export async function selectPacksWithPrice() {
         JOIN products 
         ON products.code = packs.pack_id
     `))[0]
+}
+
+export async function updateProductsPricesByCode(query: string, codes: string[]) {
+    return (await db.query(`
+        UPDATE prodteste 
+        SET sales_price = 
+            CASE code
+                ${query}
+            END
+        WHERE code IN (?)
+    `, [codes]))[0]
 }
