@@ -1,5 +1,5 @@
 import { Product } from "protocols/Product";
-import { selectPacksWithPrice, selectPacksWithProducts, selectProductsById, updateProductsPricesByCode } from "../repositories/products.repository";
+import { selectPacksWithProducts, selectProductsById, updateProductsPricesByCode } from "../repositories/products.repository";
 import { CsvData } from "protocols/CsvData";
 import notFoundError from "../errors/notFoundError.error";
 import { forbiddenError } from "../errors/forbiddenError.error";

@@ -15,17 +15,10 @@ export async function selectPacksWithProducts() {
     `))[0]
 }
 
-export async function selectPacksWithPrice() {
-    return (await db.query(`
-        SELECT * FROM packs
-        JOIN products 
-        ON products.code = packs.pack_id
-    `))[0]
-}
 
 export async function updateProductsPricesByCode(query: string, codes: string[]) {
     return (await db.query(`
-        UPDATE prodteste 
+        UPDATE products 
         SET sales_price = 
             CASE code
                 ${query}
