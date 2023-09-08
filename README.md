@@ -1,7 +1,7 @@
 # Shopper-Teste-Back
 
 Programa para atualizar preços de tabelas de mercado feito para o teste da vaga de Desenvolvedor FullStack Junior da startup Shopper. 
-Este é o Back-end do projeto.
+Este é o Back-End do projeto.
 
 
 ## Tecnologias utilizadas:
