@@ -24,7 +24,7 @@ export async function updateProducts(req: FileDataRequest, res: Response) {
 
     try {
         const updatedData = await updateProductsByCsvData(updateData)
-        return res.send(updatedData)
+        return res.status(httpStatus.NO_CONTENT).send(updatedData)
     } catch (error) {
         res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error.message)
     }
