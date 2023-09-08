@@ -5,9 +5,9 @@ Este é o Back-End do projeto.
 
 
 ## Tecnologias utilizadas
-  - TypeScript;
-  - Node.js;
-  - MySQL.
+  - TypeScript
+  - Node.js
+  - MySQL
 
 ## Setup
  - Arquivo .env.example presente na raiz do projeto com todos os campos necessários para conectar ao banco de dados e escolher a porta da aplicação, caso desejar;
