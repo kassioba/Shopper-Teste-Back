@@ -4,7 +4,7 @@ Programa para atualizar preços de tabelas de mercado feito para o teste da vaga
 Este é o Back-End do projeto.
 
 
-## Tecnologias utilizadas:
+## Tecnologias utilizadas
   - TypeScript;
   - Node.js;
   - MySQL.
