@@ -1,4 +1,4 @@
-import { applicationError } from "protocols/ApplicationError";
+import { applicationError } from "../protocols/ApplicationError";
 
 export function packsError(productsId: Array<number>): applicationError & { id: Array<number> } {
     return{

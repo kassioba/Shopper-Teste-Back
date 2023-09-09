@@ -1,4 +1,4 @@
-import { applicationError } from "protocols/ApplicationError";
+import { applicationError } from "../protocols/ApplicationError";
 
 export default function notFoundError(productCode?: number[]): applicationError & { id: number[] }{
     return {
