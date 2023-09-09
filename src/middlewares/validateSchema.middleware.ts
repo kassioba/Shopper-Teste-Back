@@ -3,7 +3,7 @@ import { ArraySchema, ObjectSchema } from 'joi'
 import { Readable } from "stream";
 import readline from 'readline'
 import { CsvData } from '../protocols/CsvData';
-import { FileDataRequest } from "protocols/FileDataRequest";
+import { FileDataRequest } from "../protocols/FileDataRequest";
 import httpStatus from "http-status";
 
 export default function validateSchema(schema: ObjectSchema, secondSchema?: ArraySchema){

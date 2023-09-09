@@ -1,11 +1,11 @@
-import { Product } from "protocols/Product";
+import { Product } from "../protocols/Product";
 import { selectPacksWithProducts, selectProductsById, updateProductsPricesByCode } from "../repositories/products.repository";
-import { CsvData } from "protocols/CsvData";
+import { CsvData } from "../protocols/CsvData";
 import notFoundError from "../errors/notFoundError.error";
 import { forbiddenError } from "../errors/forbiddenError.error";
-import { Pack } from "protocols/Pack";
+import { Pack } from "../protocols/Pack";
 import { packsError } from "../errors/packs.error";
-import { applicationError } from "protocols/ApplicationError";
+import { applicationError } from "../protocols/ApplicationError";
 
 export async function validateFileData(updateData: CsvData[]){
     const codes = []

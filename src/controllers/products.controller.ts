@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { updateProductsByCsvData, validateFileData } from "../services/products.service";
-import { FileDataRequest } from "protocols/FileDataRequest";
-import { CsvData } from "protocols/CsvData";
+import { FileDataRequest } from "../protocols/FileDataRequest";
+import { CsvData } from "../protocols/CsvData";
 import httpStatus from 'http-status'
 
 
