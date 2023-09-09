@@ -1,18 +1,18 @@
 # Shopper-Teste-Back
 
 Programa para atualizar preços de tabelas de mercado feito para o teste da vaga de Desenvolvedor FullStack Junior da startup Shopper. 
-Este é o Back-end do projeto.
+Este é o Back-End do projeto.
 
 
-## Tecnologias utilizadas:
-  - TypeScript;
-  - Node.js;
-  - MySQL.
+## Tecnologias utilizadas
+  - TypeScript
+  - Node.js
+  - MySQL
 
 ## Setup
  - Arquivo .env.example presente na raiz do projeto com todos os campos necessários para conectar ao banco de dados e escolher a porta da aplicação, caso desejar;
  - Utilize o comando "npm i" para instalar as dependências do projeto;
- - Utilize o comando "npm run dev" para iniciar o servidor.
+ - Utilize o comando "npm run dev" para iniciar a aplicação.
 
 ## Rotas 
  - POST /validate:
