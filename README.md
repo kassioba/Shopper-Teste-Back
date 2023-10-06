@@ -3,6 +3,8 @@
 Programa para atualizar preços de tabelas de mercado feito para o teste da vaga de Desenvolvedor FullStack Junior da startup Shopper. 
 Este é o Back-End do projeto.
 
+Link do repositório Front-end: https://github.com/kassioba/Shopper-Teste-Front
+
 
 ## Tecnologias utilizadas
   - TypeScript
